@@ -1,4 +1,6 @@
-export type Motor = {
+import { RowDataPacket } from 'mysql2';
+
+export interface Motor extends RowDataPacket {
     id: number;
     motor_code: string;
     brand: string | null;
@@ -32,26 +34,26 @@ export type Motor = {
     vent_diam: number | null;
     vent_eje: number | null;
     chaveta: string | null;
-};
+}
 
-export type Plant = {
+export interface Plant extends RowDataPacket {
     id: number;
     plant_code: string;
     line: string | null;
     section: string | null;
     equipment: string | null;
     ubication: string | null;
-};
+}
 
-export type Relation = {
+export interface Relation extends RowDataPacket {
     id: number;
     motor_id: number;
     plant_id: number | null;
-    similar: string[];
+    similar: string | string[]; // Can be string from DB
     ubication: string | null;
     pallet: string | null;
     status: string | null;
-};
+}
 
 export type SimilarMotorData = {
     plant_code: string | null;

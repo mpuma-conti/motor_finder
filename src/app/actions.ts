@@ -5,7 +5,7 @@ import { getStockInfo } from '@/lib/data';
 import type { SimilarMotorData } from '@/lib/types';
 
 export async function getAISuggestions(motor: SimilarMotorData) {
-    const currentStock = getStockInfo();
+    const currentStock = await getStockInfo();
 
     const performanceMetrics = `Power: ${motor.power} kW, RPM: ${motor.rpm}, Power(HP): ${motor.power_hp}, Flange: ${motor.flange}`;
     
