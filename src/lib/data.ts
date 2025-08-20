@@ -17,9 +17,9 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-const formatData = (motor: Motor, relation: Relation, plant: Plant | null): SimilarMotorData => {
+const formatData = (motor: Motor, relation: Relation | null, plant: Plant | null): SimilarMotorData => {
     let similar: string[] = [];
-    if (typeof relation.similar === 'string') {
+    if (relation && typeof relation.similar === 'string') {
         try {
             const parsed = JSON.parse(relation.similar);
             if (Array.isArray(parsed)) {
@@ -31,11 +31,11 @@ const formatData = (motor: Motor, relation: Relation, plant: Plant | null): Simi
     }
     
     return {
-        plant_code: plant?.plant_code || (relation.ubication === 'stock' ? 'Stock' : 'N/A'),
+        plant_code: plant?.plant_code || (relation?.ubication === 'stock' ? 'Stock' : 'N/A'),
         motor_code: motor.motor_code,
         similar: similar,
-        ubication: plant?.ubication || relation.ubication,
-        pallet: relation.pallet,
+        ubication: plant?.ubication || relation?.ubication || null,
+        pallet: relation?.pallet || null,
         med_d: motor.med_d,
         power: motor.power,
         rpm: motor.rpm,
@@ -44,6 +44,21 @@ const formatData = (motor: Motor, relation: Relation, plant: Plant | null): Simi
     };
 };
 
+const getFullMotorData = async (connection: mysql.PoolConnection, motor: Motor): Promise<SimilarMotorData> => {
+    const [relationRows] = await connection.execute<Relation[]>('SELECT * FROM relations WHERE motor_id = ?', [motor.id]);
+    const relation = relationRows.length > 0 ? relationRows[0] : null;
+
+    let plant: Plant | null = null;
+    if (relation && relation.plant_id) {
+        const [plantRows] = await connection.execute<Plant[]>('SELECT * FROM plants WHERE id = ?', [relation.plant_id]);
+        if (plantRows.length > 0) {
+            plant = plantRows[0];
+        }
+    }
+    return formatData(motor, relation, plant);
+}
+
+
 export const getMotorDataByCode = async (motorCode: string): Promise<SimilarMotorData | null> => {
     const connection = await pool.getConnection();
     try {
@@ -51,21 +66,7 @@ export const getMotorDataByCode = async (motorCode: string): Promise<SimilarMoto
         if (motorRows.length === 0) return null;
         const motor = motorRows[0];
 
-        const [relationRows] = await connection.execute<Relation[]>('SELECT * FROM relations WHERE motor_id = ?', [motor.id]);
-        if (relationRows.length === 0) {
-             return formatData(motor, { similar: [], id: 0, motor_id: motor.id, plant_id: null, ubication: null, pallet: null, status: null }, null);
-        }
-        const relation = relationRows[0];
-
-        let plant: Plant | null = null;
-        if (relation.plant_id) {
-            const [plantRows] = await connection.execute<Plant[]>('SELECT * FROM plants WHERE id = ?', [relation.plant_id]);
-            if (plantRows.length > 0) {
-                plant = plantRows[0];
-            }
-        }
-        
-        return formatData(motor, relation, plant);
+        return await getFullMotorData(connection, motor);
     } catch (error) {
         console.error('Database query error in getMotorDataByCode:', error);
         return null;
@@ -88,37 +89,62 @@ export async function findSimilarMotors(motorCode: string): Promise<{ originalMo
             return { originalMotor: originalMotorData, similarMotors: [] };
         }
 
-        // Build a query with multiple JSON_CONTAINS checks
-        const searchConditions = codesToSearch.map(() => `JSON_CONTAINS(similar, ?)`);
-        const query = `
-            SELECT r.* FROM relations r WHERE ${searchConditions.join(' OR ')}
-        `;
-        const queryParams = codesToSearch.map(code => `"${code}"`); // Wrap each code in quotes for JSON search
+        const placeholders = codesToSearch.map(() => 'JSON_CONTAINS(similar, ?)').join(' OR ');
+        const query = `SELECT motor_id FROM relations WHERE ${placeholders}`;
+        const queryParams = codesToSearch.map(code => `"${code}"`);
 
-        const [foundRelations] = await connection.execute<Relation[]>(query, queryParams);
-        
-        const similarMotorsPromises = foundRelations.map(async (relation) => {
-            const [motorRows] = await connection.execute<Motor[]>('SELECT * FROM motors WHERE id = ?', [relation.motor_id]);
-            if (motorRows.length === 0) return null;
-            const motor = motorRows[0];
+        const [relationRows] = await connection.execute<Relation[]>(query, queryParams);
+        const motorIds = relationRows.map(r => r.motor_id);
 
-            let plant: Plant | null = null;
-            if (relation.plant_id) {
-                const [plantRows] = await connection.execute<Plant[]>('SELECT * FROM plants WHERE id = ?', [relation.plant_id]);
-                if (plantRows.length > 0) {
-                    plant = plantRows[0];
-                }
-            }
-            return formatData(motor, relation, plant);
-        });
+        if (motorIds.length === 0) {
+            return { originalMotor: originalMotorData, similarMotors: [] };
+        }
 
-        const similarMotors = (await Promise.all(similarMotorsPromises)).filter((motor): motor is SimilarMotorData => motor !== null);
+        const motorPlaceholders = motorIds.map(() => '?').join(',');
+        const [motorRows] = await connection.execute<Motor[]>(`SELECT * FROM motors WHERE id IN (${motorPlaceholders})`, motorIds);
+
+        const similarMotorsPromises = motorRows.map(motor => getFullMotorData(connection, motor));
+        const similarMotors = await Promise.all(similarMotorsPromises);
 
         return { originalMotor: originalMotorData, similarMotors };
 
     } catch (error) {
         console.error('Database query error in findSimilarMotors:', error);
         return { originalMotor: null, similarMotors: [] };
+    } finally {
+        connection.release();
+    }
+}
+
+export async function findStandbyMotors(motorCode: string): Promise<SimilarMotorData[]> {
+    const connection = await pool.getConnection();
+    try {
+        const [originalMotorRows] = await connection.execute<Motor[]>('SELECT * FROM motors WHERE motor_code = ?', [motorCode]);
+        if (originalMotorRows.length === 0) {
+            return [];
+        }
+        const originalMotor = originalMotorRows[0];
+
+        let query: string;
+        const params: (string | number | null)[] = [];
+
+        if (originalMotor.flange === 'B3') {
+            query = 'SELECT * FROM motors WHERE med_d = ? AND power >= ? AND motor_code != ?';
+            params.push(originalMotor.med_d, originalMotor.power ?? 0, originalMotor.motor_code);
+        } else {
+            query = 'SELECT * FROM motors WHERE med_brida = ? AND med_d = ? AND power >= ? AND motor_code != ?';
+            params.push(originalMotor.med_brida, originalMotor.med_d, originalMotor.power ?? 0, originalMotor.motor_code);
+        }
+
+        const [standbyMotorRows] = await connection.execute<Motor[]>(query, params);
+
+        const standbyMotorsPromises = standbyMotorRows.map(motor => getFullMotorData(connection, motor));
+        
+        return Promise.all(standbyMotorsPromises);
+
+    } catch (error) {
+        console.error('Database query error in findStandbyMotors:', error);
+        return [];
     } finally {
         connection.release();
     }

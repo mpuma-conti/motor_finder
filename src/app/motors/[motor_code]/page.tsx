@@ -1,4 +1,4 @@
-import { findSimilarMotors } from '@/lib/data';
+import { findSimilarMotors, findStandbyMotors } from '@/lib/data';
 import MotorDetailsClientPage from '@/components/motor-details-client-page';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ type MotorDetailsPageProps = {
 export default async function MotorDetailsPage({ params }: MotorDetailsPageProps) {
   const motorCode = decodeURIComponent(params.motor_code);
   const { originalMotor, similarMotors } = await findSimilarMotors(motorCode);
+  const standbyMotors = await findStandbyMotors(motorCode);
 
   return (
     <main className="container mx-auto p-4 md:p-8">
@@ -36,7 +37,11 @@ export default async function MotorDetailsPage({ params }: MotorDetailsPageProps
         </div>
       </div>
       
-      <MotorDetailsClientPage originalMotor={originalMotor} similarMotors={similarMotors} />
+      <MotorDetailsClientPage 
+        originalMotor={originalMotor} 
+        similarMotors={similarMotors}
+        standbyMotors={standbyMotors}
+      />
     </main>
   );
 }
