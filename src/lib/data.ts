@@ -95,22 +95,3 @@ export async function findSimilarMotors(motorCode: string): Promise<{ originalMo
 
     return { originalMotor: originalMotorData, similarMotors };
 }
-
-export const getStockInfo = async (): Promise<string> => {
-    const connection = await pool.getConnection();
-    try {
-        const [rows] = await connection.execute<{ motor_code: string }[]>(
-            `SELECT m.motor_code 
-             FROM relations r
-             JOIN motors m ON r.motor_id = m.id
-             WHERE r.status = 'stock'`
-        );
-        const stockMotors = rows.map(r => r.motor_code);
-        return `Available in stock: ${stockMotors.join(', ') || 'None'}`;
-    } catch (error) {
-        console.error('Database query error for stock info:', error);
-        return 'Available in stock: Error fetching data';
-    } finally {
-        connection.release();
-    }
-}

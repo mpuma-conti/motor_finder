@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview A flow to suggest alternative motors based on current stock levels, performance metrics, and compatibility.
+ * @fileOverview A flow to suggest alternative motors based on performance metrics and compatibility.
  *
  * - suggestAlternativeMotors - A function that handles the suggestion of alternative motors.
  * - SuggestAlternativeMotorsInput - The input type for the suggestAlternativeMotors function.
@@ -16,7 +16,6 @@ const SuggestAlternativeMotorsInputSchema = z.object({
   powerHp: z.number().optional().describe('The power in horsepower of the motor.'),
   rpm: z.number().optional().describe('The RPM of the motor.'),
   flange: z.string().optional().describe('The flange type of the motor.'),
-  currentStock: z.string().describe('Current stock levels for potential replacement motors.'),
   performanceMetrics: z.string().describe('Performance metrics of the current motor.'),
 });
 export type SuggestAlternativeMotorsInput = z.infer<typeof SuggestAlternativeMotorsInputSchema>;
@@ -34,13 +33,12 @@ const prompt = ai.definePrompt({
   name: 'suggestAlternativeMotorsPrompt',
   input: {schema: SuggestAlternativeMotorsInputSchema},
   output: {schema: SuggestAlternativeMotorsOutputSchema},
-  prompt: `You are an expert maintenance engineer. Based on the following information about a malfunctioning motor, suggest suitable alternative motors. Take into consideration current stock levels, performance metrics, and compatibility.
+  prompt: `You are an expert maintenance engineer. Based on the following information about a malfunctioning motor, suggest suitable alternative motors. Take into consideration performance metrics and compatibility.
 
 Motor Code: {{{motorCode}}}
 Power (HP): {{{powerHp}}}
 RPM: {{{rpm}}}
 Flange Type: {{{flange}}}
-Current Stock Levels: {{{currentStock}}}
 Performance Metrics: {{{performanceMetrics}}}
 
 Suggestions:`, 
