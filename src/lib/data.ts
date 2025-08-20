@@ -6,10 +6,10 @@ import { config } from 'dotenv';
 config();
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || '127.0.0.1',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'motor_finder',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -68,7 +68,7 @@ export async function findSimilarMotors(motorCode: string): Promise<{ originalMo
     const similarMotorCodes = originalMotorData.similar;
 
     const similarMotorsPromises = similarMotorCodes.map(code => getMotorDataByCode(code));
-    const similarMotors = (await Promise.all(similarMotorsPromises)).filter((motor): motor is SimilarMotor_Data => motor !== null);
+    const similarMotors = (await Promise.all(similarMotorsPromises)).filter((motor): motor is SimilarMotorData => motor !== null);
 
     return { originalMotor: originalMotorData, similarMotors };
 }
