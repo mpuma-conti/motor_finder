@@ -1,3 +1,5 @@
+'use server';
+
 import 'server-only';
 import mysql from 'mysql2/promise';
 import type { Motor, Plant, Relation, SimilarMotorData } from './types';
@@ -9,17 +11,31 @@ const pool = mysql.createPool({
     host: process.env.DB_HOST || '127.0.0.1',
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'motor_finder',
+    database: process.env.DB_NAME || 'test',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
 const formatData = (motor: Motor, relation: Relation, plant: Plant | null): SimilarMotorData => {
+    let similar: string[] = [];
+    if (typeof relation.similar === 'string') {
+        try {
+            // Attempt to parse the string as JSON
+            const parsed = JSON.parse(relation.similar);
+            if (Array.isArray(parsed)) {
+                similar = parsed.map(String);
+            }
+        } catch (e) {
+            // Fallback for comma-separated strings or single values
+            similar = relation.similar.split(',').map(s => s.trim()).filter(Boolean);
+        }
+    }
+    
     return {
         plant_code: plant?.plant_code || (relation.ubication === 'stock' ? 'Stock' : 'N/A'),
         motor_code: motor.motor_code,
-        similar: typeof relation.similar === 'string' ? relation.similar.split(',').map(s => s.trim()).filter(Boolean) : [],
+        similar: similar,
         ubication: plant?.ubication || relation.ubication,
         pallet: relation.pallet,
         med_d: motor.med_d,
@@ -38,7 +54,10 @@ export const getMotorDataByCode = async (motorCode: string): Promise<SimilarMoto
         const motor = motorRows[0];
 
         const [relationRows] = await connection.execute<Relation[]>('SELECT * FROM relations WHERE motor_id = ?', [motor.id]);
-        if (relationRows.length === 0) return null;
+        if (relationRows.length === 0) {
+             // Return motor data even if there's no relation, with empty similar array
+             return formatData(motor, { similar: [], id: 0, motor_id: motor.id, plant_id: null, ubication: null, pallet: null, status: null }, null);
+        }
         const relation = relationRows[0];
 
         let plant: Plant | null = null;
@@ -66,6 +85,10 @@ export async function findSimilarMotors(motorCode: string): Promise<{ originalMo
     }
 
     const similarMotorCodes = originalMotorData.similar;
+
+    if (!similarMotorCodes || similarMotorCodes.length === 0) {
+        return { originalMotor: originalMotorData, similarMotors: [] };
+    }
 
     const similarMotorsPromises = similarMotorCodes.map(code => getMotorDataByCode(code));
     const similarMotors = (await Promise.all(similarMotorsPromises)).filter((motor): motor is SimilarMotorData => motor !== null);
