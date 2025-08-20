@@ -3,6 +3,7 @@ import MotorDetailsClientPage from '@/components/motor-details-client-page';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import AISuggestion from '@/components/ai-suggestion';
 
 type MotorDetailsPageProps = {
   params: {
@@ -27,7 +28,8 @@ export default async function MotorDetailsPage({ params }: MotorDetailsPageProps
           <h1 className="text-3xl font-bold font-headline">Motor Details</h1>
           {originalMotor ? (
             <p className="text-muted-foreground">
-              Showing details for motor <span className="font-bold text-primary">{motorCode}</span> and its equivalents.
+              Showing details for motor <span className="font-bold text-primary">{motorCode}</span>
+              {originalMotor.equipment && <> for <span className="font-semibold text-foreground">{originalMotor.equipment}</span></>}
             </p>
           ) : (
              <p className="text-destructive">
@@ -35,6 +37,11 @@ export default async function MotorDetailsPage({ params }: MotorDetailsPageProps
             </p>
           )}
         </div>
+        {originalMotor && originalMotor.equipment && (
+          <div>
+            <AISuggestion motor={originalMotor} />
+          </div>
+        )}
       </div>
       
       <MotorDetailsClientPage 

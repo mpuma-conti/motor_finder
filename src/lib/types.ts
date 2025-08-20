@@ -66,4 +66,5 @@ export type SimilarMotorData = {
     rpm: number | null;
     power_hp: number | null;
     flange: string | null;
+    equipment: string | null;
 };

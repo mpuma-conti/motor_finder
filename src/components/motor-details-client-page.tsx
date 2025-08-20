@@ -2,7 +2,6 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { SimilarMotorData } from '@/lib/types';
-import AISuggestion from './ai-suggestion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
@@ -48,7 +47,6 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
                   <TableHead>Shaft Dia. (d)</TableHead>
                   <TableHead>Power (kW)</TableHead>
                   <TableHead>RPM</TableHead>
-                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -66,9 +64,6 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
                     <TableCell>{motor.med_d}</TableCell>
                     <TableCell>{motor.power}</TableCell>
                     <TableCell>{motor.rpm}</TableCell>
-                    <TableCell>
-                      <AISuggestion motor={motor} />
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

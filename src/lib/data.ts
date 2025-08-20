@@ -41,6 +41,7 @@ const formatData = (motor: Motor, relation: Relation | null, plant: Plant | null
         rpm: motor.rpm,
         power_hp: motor.power_hp,
         flange: motor.flange,
+        equipment: plant?.equipment || null,
     };
 };
 
@@ -129,11 +130,11 @@ export async function findStandbyMotors(motorCode: string): Promise<SimilarMotor
         const params: (string | number | null)[] = [];
 
         if (originalMotor.flange === 'B3') {
-            query = 'SELECT * FROM motors WHERE med_d = ? AND power >= ? AND motor_code != ?';
-            params.push(originalMotor.med_d, originalMotor.power ?? 0, originalMotor.motor_code);
+            query = 'SELECT * FROM motors WHERE med_d = ? AND CAST(power AS DECIMAL(10,2)) >= ? AND motor_code != ?';
+            params.push(originalMotor.med_d, Number(originalMotor.power) ?? 0, originalMotor.motor_code);
         } else {
-            query = 'SELECT * FROM motors WHERE med_brida = ? AND med_d = ? AND power >= ? AND motor_code != ?';
-            params.push(originalMotor.med_brida, originalMotor.med_d, originalMotor.power ?? 0, originalMotor.motor_code);
+            query = 'SELECT * FROM motors WHERE med_brida = ? AND med_d = ? AND CAST(power AS DECIMAL(10,2)) >= ? AND motor_code != ?';
+            params.push(originalMotor.med_brida, originalMotor.med_d, Number(originalMotor.power) ?? 0, originalMotor.motor_code);
         }
 
         const [standbyMotorRows] = await connection.execute<Motor[]>(query, params);

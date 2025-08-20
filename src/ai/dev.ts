@@ -1,4 +1,4 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/suggest-alternative-motors.ts';
+import '@/ai/flows/suggest-motor-rpm.ts';

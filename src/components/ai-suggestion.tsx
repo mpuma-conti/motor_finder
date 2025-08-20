@@ -49,16 +49,16 @@ export default function AISuggestion({ motor }: AISuggestionProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <Sparkles className="mr-2 h-4 w-4 text-primary" />
-          AI Suggest
+          AI RPM Suggestion
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>AI Motor Suggestions</DialogTitle>
+          <DialogTitle>AI RPM Suggestion</DialogTitle>
           <DialogDescription>
-            Alternative motor suggestions for <span className="font-bold text-foreground">{motor.motor_code}</span> based on performance and stock.
+            AI-based RPM suggestion for <span className="font-bold text-foreground">{motor.equipment}</span>.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 text-sm">
