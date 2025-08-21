@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Motor Finder',
-  description: 'Find similar motors and get AI suggestions',
+  title: 'Buscador de Motores',
+  description: 'Encuentra motores standby y sugerencias de RPM basadas en IA',
 };
 
 export default function RootLayout({

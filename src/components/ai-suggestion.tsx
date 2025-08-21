@@ -51,14 +51,14 @@ export default function AISuggestion({ motor }: AISuggestionProps) {
       <DialogTrigger asChild>
         <Button variant="outline">
           <Sparkles className="mr-2 h-4 w-4 text-primary" />
-          AI RPM Suggestion
+          IA Sugerencia de RPM
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>AI RPM Suggestion</DialogTitle>
+          <DialogTitle>Basado en Inteligencia Artificial</DialogTitle>
           <DialogDescription>
-            AI-based RPM suggestion for <span className="font-bold text-foreground">{motor.equipment}</span>.
+          Sugerencia de RPM para <span className="font-bold text-foreground">{motor.equipment}</span>.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 text-sm">
@@ -72,7 +72,7 @@ export default function AISuggestion({ motor }: AISuggestionProps) {
           {suggestions && <p className="whitespace-pre-wrap">{suggestions}</p>}
         </div>
         <DialogFooter>
-          <Button onClick={() => setIsOpen(false)}>Close</Button>
+          <Button onClick={() => setIsOpen(false)}>Cerrar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

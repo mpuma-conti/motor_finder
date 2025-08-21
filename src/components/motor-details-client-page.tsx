@@ -16,8 +16,8 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
     return (
       <Card className="text-center">
         <CardHeader>
-          <CardTitle>No Motor Found</CardTitle>
-          <CardDescription>The requested motor code could not be found. Please check the code and try again.</CardDescription>
+          <CardTitle>Motor No Encontrado</CardTitle>
+          <CardDescription>El código de motor no pudo ser encontrado. Por favor revisa el código e intenta nuevamente.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -31,21 +31,21 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
     <div className="space-y-8">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Equivalent Motors</CardTitle>
-          <CardDescription>The highlighted row is the motor you searched for.</CardDescription>
+          <CardTitle>Motores Equivalentes</CardTitle>
+          <CardDescription>La fila resaltada es el motor que buscaste.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Plant Code</TableHead>
-                  <TableHead>Motor Code</TableHead>
-                  <TableHead>Similar To</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Pallet</TableHead>
-                  <TableHead>Shaft Dia. (d)</TableHead>
-                  <TableHead>Power (kW)</TableHead>
+                  <TableHead>Código de Planta</TableHead>
+                  <TableHead>Código de Motor</TableHead>
+                  <TableHead>Compatible con</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Parihuela</TableHead>
+                  <TableHead>Diámetro Eje (mm)</TableHead>
+                  <TableHead>Potencia (kW)</TableHead>
                   <TableHead>RPM</TableHead>
                 </TableRow>
               </TableHeader>
@@ -75,9 +75,9 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
       {standbyMotors.length > 0 && (
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>Another possible standby</CardTitle>
+            <CardTitle>Otras posibles opciones</CardTitle>
             <CardDescription>
-              Motors with compatible dimensions and equal or greater power.
+              Motores con dimensiones compatibles y potencia igual o mayor.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -85,13 +85,13 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Plant Code</TableHead>
-                    <TableHead>Motor Code</TableHead>
-                    <TableHead>Similar To</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Pallet</TableHead>
-                    <TableHead>Shaft Dia. (d)</TableHead>
-                    <TableHead>Power (kW)</TableHead>
+                    <TableHead>Código de Planta</TableHead>
+                    <TableHead>Código de Motor</TableHead>
+                    <TableHead>Compatible con</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Parihuela</TableHead>
+                    <TableHead>Diámetro Eje (mm)</TableHead>
+                    <TableHead>Potencia (kW)</TableHead>
                     <TableHead>RPM</TableHead>
                   </TableRow>
                 </TableHeader>

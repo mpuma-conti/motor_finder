@@ -22,18 +22,18 @@ export default async function MotorDetailsPage({ params }: MotorDetailsPageProps
         <div>
           <Button variant="ghost" asChild className="mb-2">
             <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Search
+              <ArrowLeft className="mr-2 h-4 w-4" /> Volver a la búsqueda
             </Link>
           </Button>
-          <h1 className="text-3xl font-bold font-headline">Motor Details</h1>
+          <h1 className="text-3xl font-bold font-headline">Detalles del Motor</h1>
           {originalMotor ? (
             <p className="text-muted-foreground">
-              Showing details for motor <span className="font-bold text-primary">{motorCode}</span>
-              {originalMotor.equipment && <> for <span className="font-semibold text-foreground">{originalMotor.equipment}</span></>}
+              Se muestran los detalles para el motor <span className="font-bold text-primary">{motorCode}</span>
+              {originalMotor.equipment && <> que opera como <span className="font-semibold text-foreground">{originalMotor.equipment}</span></>}
             </p>
           ) : (
              <p className="text-destructive">
-              Motor with code <span className="font-bold">{motorCode}</span> not found.
+              Motor con código <span className="font-bold">{motorCode}</span> no encontrado.
             </p>
           )}
         </div>
