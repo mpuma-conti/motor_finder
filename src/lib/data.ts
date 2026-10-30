@@ -39,6 +39,7 @@ const formatData = (motor: Motor, relation: Relation | null, plant: Plant | null
         med_d: motor.med_d,
         power: motor.power,
         rpm: motor.rpm,
+        current: motor.current,
         power_hp: motor.power_hp,
         flange: motor.flange,
         equipment: plant?.equipment || null,

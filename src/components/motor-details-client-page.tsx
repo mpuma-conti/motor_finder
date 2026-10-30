@@ -47,6 +47,7 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
                   <TableHead>Diámetro Eje (mm)</TableHead>
                   <TableHead>Potencia (kW)</TableHead>
                   <TableHead>RPM</TableHead>
+                  <TableHead>Corriente (A)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -64,6 +65,7 @@ export default function MotorDetailsClientPage({ originalMotor, similarMotors, s
                     <TableCell>{motor.med_d}</TableCell>
                     <TableCell>{motor.power}</TableCell>
                     <TableCell>{motor.rpm}</TableCell>
+                    <TableCell>{motor.current}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
